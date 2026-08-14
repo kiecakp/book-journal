@@ -1,9 +1,9 @@
-import { initDatabase } from "@/database/db";
-import { LanguageProvider } from "@/i18n/LanguageContext";
-import AppNavigator from "@/navigation/AppNavigator";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
+import { initDatabase } from "./src/database/db";
+import { LanguageProvider } from "./src/i18n/LanguageContext";
+import AppNavigator from "./src/navigation/AppNavigator";
 
 export default function App() {
   const [ready, setReady] = useState(false);

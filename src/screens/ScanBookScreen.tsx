@@ -19,6 +19,14 @@ import { useTranslation } from "../i18n/LanguageContext";
 import { fetchBookByISBN } from "../services/booksApi";
 import { RootStackParamList } from "../types";
 
+const absoluteFillObject = {
+  position: "absolute" as const,
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+};
+
 type Props = NativeStackScreenProps<RootStackParamList, "ScanBook">;
 
 export default function ScanBookScreen({ route, navigation }: Props) {
@@ -71,7 +79,7 @@ export default function ScanBookScreen({ route, navigation }: Props) {
       quality: 0.7,
     });
 
-    if (!result.cancelled) {
+    if (!result.canceled) {
       saveEntry({ date, isbn, localImageUri: result.assets[0].uri });
       navigation.navigate("DayDetail", { date });
     }
@@ -90,7 +98,7 @@ export default function ScanBookScreen({ route, navigation }: Props) {
       quality: 0.7,
     });
 
-    if (!result.cancelled) {
+    if (!result.canceled) {
       saveEntry({ date, localImageUri: result.assets[0].uri });
       navigation.navigate("DayDetail", { date });
     }
@@ -118,7 +126,7 @@ export default function ScanBookScreen({ route, navigation }: Props) {
   return (
     <View style={styles.container}>
       <CameraView
-        style={StyleSheet.absoluteFillObject}
+        style={absoluteFillObject}
         facing="back"
         barcodeScannerSettings={{ barcodeTypes: ["ean13", "ean8"] }}
         onBarcodeScanned={scanned ? undefined : handleBercodeScanned}
@@ -173,7 +181,7 @@ const styles = StyleSheet.create({
   },
   buttonText: { color: "#fff", fontWeight: "600" },
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...absoluteFillObject,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -186,7 +194,7 @@ const styles = StyleSheet.create({
   },
   helperText: { color: "#fff", marginTop: 16, fontSize: 14 },
   loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...absoluteFillObject,
     backgroundColor: "rgba(0,0,0,0.6)",
     justifyContent: "center",
     alignItems: "center",
