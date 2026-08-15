@@ -5,7 +5,7 @@ import {
   useCameraPermissions,
 } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -34,12 +34,14 @@ export default function ScanBookScreen({ route, navigation }: Props) {
   const { t } = useTranslation();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
+  const isProcessingRef = useRef(false);
   const [loading, setLoading] = useState(false);
 
-  const handleBercodeScanned = async ({
+  const handleBarcodeScanned = async ({
     data: isbn,
   }: BarcodeScanningResult) => {
-    if (scanned) return;
+    if (isProcessingRef.current) return;
+    isProcessingRef.current = true;
     setScanned(true);
     setLoading(true);
 
@@ -54,13 +56,22 @@ export default function ScanBookScreen({ route, navigation }: Props) {
         [
           {
             text: t("ok"),
-            onPress: () => navigation.navigate("DayDetail", { date }),
+            onPress: () => {
+              isProcessingRef.current = false;
+              navigation.navigate("DayDetail", { date });
+            },
           },
         ],
       );
     } else {
       Alert.alert(t("notFoundTitle"), t("notFoundMessage"), [
-        { text: t("scanAgain"), onPress: () => setScanned(false) },
+        {
+          text: t("scanAgain"),
+          onPress: () => {
+            isProcessingRef.current = false;
+            setScanned(false);
+          },
+        },
         { text: t("takePhoto"), onPress: () => handleTakePhoto(isbn) },
       ]);
     }
@@ -125,41 +136,45 @@ export default function ScanBookScreen({ route, navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <CameraView
-        style={absoluteFillObject}
-        facing="back"
-        barcodeScannerSettings={{ barcodeTypes: ["ean13", "ean8"] }}
-        onBarcodeScanned={scanned ? undefined : handleBercodeScanned}
-      />
+      {!scanned ? (
+        <>
+          <CameraView
+            style={StyleSheet.absoluteFillObject}
+            facing="back"
+            barcodeScannerSettings={{ barcodeTypes: ["ean13", "ean8"] }}
+            onBarcodeScanned={handleBarcodeScanned}
+          />
 
-      <View style={styles.overlay}>
-        <View style={styles.scanFrame} />
-        <Text style={styles.helperText}>{t("scanHelper")}</Text>
-      </View>
+          <View style={styles.overlay}>
+            <View style={styles.scanFrame} />
+            <Text style={styles.helperText}>{t("scanHelper")}</Text>
+          </View>
 
-      {loading && (
-        <View style={styles.loadingOverlay}>
+          <View style={styles.bottomBar}>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => handleTakePhoto(null)}
+            >
+              <Text style={styles.secondaryButtonText}>
+                {t("takePhotoInstead")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={handlePickFromGallery}
+            >
+              <Text style={styles.secondaryButtonText}>
+                {t("pickFromGallery")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      ) : (
+        <View style={styles.processingScreen}>
           <ActivityIndicator size="large" color="#fff" />
           <Text style={styles.loadingText}>{t("searching")}</Text>
         </View>
       )}
-
-      <View style={styles.bottomBar}>
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => handleTakePhoto(null)}
-        >
-          <Text style={styles.secondaryButtonText}>
-            {t("takePhotoInstead")}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={handlePickFromGallery}
-        >
-          <Text style={styles.secondaryButtonText}>{t("pickFromGallery")}</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
@@ -214,6 +229,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 8,
+  },
+  processingScreen: {
+    flex: 1,
+    backgroundColor: "#000",
+    justifyContent: "center",
+    alignItems: "center",
   },
   secondaryButtonText: { color: "#fff", fontSize: 13, fontWeight: "600" },
 });
