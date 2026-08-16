@@ -4,31 +4,26 @@ export async function fetchBookByISBN(
   isbn: string,
 ): Promise<BookApiResult | null> {
   const cleanIsbn = isbn.replace(/[^0-9Xx]/g, "");
-  const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanIsbn}`;
-
-  console.log("Zeskanowany ISBN (surowy):", isbn);
-  console.log("Wyczyszczony ISBN:", cleanIsbn);
-  console.log("URL zapytania:", url);
+  const url = `https://openlibrary.org/api/books?bibkeys=ISBN:${cleanIsbn}&jscmd=data&format=json`;
 
   try {
     const response = await fetch(url);
-    console.log("Status odpowiedzi:", response.status);
     const data = await response.json();
-    console.log("Odpowiedź z API:", JSON.stringify(data));
 
-    if (!data.items || data.items.length === 0) return null;
+    const bookData = data[`ISBN:${cleanIsbn}`];
 
-    const info = data.items[0].volumeInfo;
+    if (!bookData) return null;
 
     return {
       isbn: cleanIsbn,
-      title: info.title ?? null,
-      author: info.authors ? info.authors.join(", ") : null,
-      coverUrl: info.imageLinks
-        ? (info.imageLinks.thumbnail ?? info.imageLinks.smallThumbnail).replace(
-            "http://",
-            "https://",
-          )
+      title: bookData.title ?? null,
+      author: bookData.authors
+        ? bookData.authors.map((a: { name: string }) => a.name).join(", ")
+        : null,
+      coverUrl: bookData.cover
+        ? (bookData.cover.large ??
+          bookData.cover.medium ??
+          bookData.cover.small)
         : null,
     };
   } catch (error) {
