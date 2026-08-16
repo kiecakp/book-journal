@@ -10,7 +10,7 @@ export function initDatabase(): void {
       isbn TEXT,
       title TEXT,
       author TEXT,
-      coverURL TEXT,
+      coverUrl TEXT,
       localImageUri TEXT,
       notes TEXT,
       rating INTEGER

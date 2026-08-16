@@ -27,7 +27,9 @@ export default function CalendarScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       <Calendar
+        style={styles.calendar}
         firstDay={1}
+        hideExtraDays={true}
         dayComponent={({ date }) =>
           date ? (
             <DayCell
@@ -35,6 +37,8 @@ export default function CalendarScreen({ navigation }: Props) {
               entry={entries[date.dateString]}
               onPress={handleDayPress}
               isToday={date.dateString === todayString}
+              currentMonth={date.month}
+              currentYear={date.year}
             />
           ) : null
         }
@@ -56,5 +60,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  calendar: {
+    height: 380,
   },
 });
