@@ -36,6 +36,7 @@ export const translations = {
       "Potrzebuję dostępu do aparatu, żeby skanować kody ISBN.",
     allowAccess: "Zezwól na dostęp",
     unknownAuthor: "Nieznany autor",
+    goToToday: "Dzisiaj",
   },
 
   en: {
@@ -75,6 +76,7 @@ export const translations = {
     cameraNeededMessage: "I need camera access to scan ISBN codes.",
     allowAccess: "Allow access",
     unknownAuthor: "Unknown author",
+    goToToday: "Today",
   },
 } as const;
 

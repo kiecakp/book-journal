@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { deleteEntry, getEntryForDate, saveEntry } from "../database/db";
 import { useTranslation } from "../i18n/LanguageContext";
+import { colors } from "../theme/colors";
 import { BookEntry, RootStackParamList } from "../types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "DayDetail">;
@@ -125,17 +126,17 @@ export default function DayDetailScreen({ route, navigation }: Props) {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   container: { padding: 20, alignItems: "center" },
-  dateHeader: { fontSize: 14, color: "#888", marginBottom: 12 },
+  dateHeader: { fontSize: 14, color: colors.textMuted, marginBottom: 12 },
   cover: { width: 160, height: 220, borderRadius: 10, marginBottom: 16 },
   title: {
     fontSize: 20,
     fontWeight: "700",
     textAlign: "center",
-    color: "#3a2f28",
+    color: colors.textPrimary,
   },
   author: {
     fontSize: 15,
-    color: "#777",
+    color: colors.textMuted,
     marginBottom: 16,
     textAlign: "center",
   },
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     fontSize: 13,
     fontWeight: "600",
-    color: "#555",
+    color: colors.textSecondary,
     marginTop: 8,
     marginBottom: 6,
   },
@@ -151,14 +152,14 @@ const styles = StyleSheet.create({
     width: "100%",
     minHeight: 100,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: colors.borderLight,
     borderRadius: 8,
     padding: 12,
     textAlignVertical: "top",
     marginBottom: 16,
   },
   saveButton: {
-    backgroundColor: "#8B5E3C",
+    backgroundColor: colors.primary,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
@@ -166,7 +167,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  saveButtonText: { color: "#fff", fontWeight: "600" },
+  saveButtonText: { color: colors.textOnImage, fontWeight: "600" },
   secondaryButton: {
     paddingVertical: 12,
     paddingHorizontal: 24,
@@ -174,11 +175,11 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#8B5E3C",
+    borderColor: colors.primary,
     marginBottom: 10,
   },
-  secondaryButtonText: { color: "#8B5E3C", fontWeight: "600" },
+  secondaryButtonText: { color: colors.primary, fontWeight: "600" },
   deleteButton: { paddingVertical: 10 },
-  deleteButtonText: { color: "#c0392b", fontWeight: "600" },
-  emptyText: { fontSize: 15, color: "#888", marginBottom: 20 },
+  deleteButtonText: { color: colors.danger, fontWeight: "600" },
+  emptyText: { fontSize: 15, color: colors.textMuted, marginBottom: 20 },
 });

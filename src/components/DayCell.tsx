@@ -1,5 +1,6 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { DateData } from "react-native-calendars";
+import { colors } from "../theme/colors";
 import { BookEntry } from "../types";
 
 interface DayCellProps {
@@ -60,12 +61,12 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 8,
     overflow: "hidden",
-    backgroundColor: "#F3EEE9",
+    backgroundColor: colors.cellBackground,
   },
 
   todayBorder: {
     borderWidth: 2,
-    borderColor: "#8B5E3C",
+    borderColor: colors.primary,
   },
 
   cover: {
@@ -83,12 +84,12 @@ const styles = StyleSheet.create({
     left: 4,
     fontSize: 16,
     fontWeight: "600",
-    color: "#3a2f28",
+    color: colors.textPrimary,
   },
 
   dayNumberOnImage: {
-    color: "#fff",
-    textShadowColor: "rgba(0, 0, 0, 0.7)",
+    color: colors.textOnImage,
+    textShadowColor: colors.textShadow,
     textShadowOffset: {
       width: 1,
       height: 1,

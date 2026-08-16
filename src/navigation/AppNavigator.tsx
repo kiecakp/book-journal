@@ -5,6 +5,7 @@ import { useTranslation } from "../i18n/LanguageContext";
 import CalendarScreen from "../screens/CalendarScreen";
 import DayDetailScreen from "../screens/DayDetailScreen";
 import ScanBookScreen from "../screens/ScanBookScreen";
+import { colors } from "../theme/colors";
 import { RootStackParamList } from "../types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -16,10 +17,9 @@ export default function AppNavigator() {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
-          headerStyle: { backgroundColor: "#fff" },
-          headerTintColor: "#3a2f28",
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.textPrimary,
           headerTitleStyle: { fontWeight: "700" },
-          headerRight: () => <LanguageSwitch />,
         }}
       >
         <Stack.Screen
@@ -30,12 +30,18 @@ export default function AppNavigator() {
         <Stack.Screen
           name="DayDetail"
           component={DayDetailScreen}
-          options={{ title: t("dayDetailTitle") }}
+          options={{
+            title: t("dayDetailTitle"),
+            headerRight: () => <LanguageSwitch />,
+          }}
         />
         <Stack.Screen
           name="ScanBook"
           component={ScanBookScreen}
-          options={{ title: t("scanTitle") }}
+          options={{
+            title: t("scanTitle"),
+            headerRight: () => <LanguageSwitch />,
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

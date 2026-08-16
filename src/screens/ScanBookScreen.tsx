@@ -17,6 +17,7 @@ import {
 import { saveEntry } from "../database/db";
 import { useTranslation } from "../i18n/LanguageContext";
 import { fetchBookByISBN } from "../services/booksApi";
+import { colors } from "../theme/colors";
 import { RootStackParamList } from "../types";
 
 const absoluteFillObject = {
@@ -189,12 +190,12 @@ const styles = StyleSheet.create({
   },
   infoText: { textAlign: "center", marginBottom: 16, fontSize: 15 },
   button: {
-    backgroundColor: "#8B5E3C",
+    backgroundColor: colors.primary,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
   },
-  buttonText: { color: "#fff", fontWeight: "600" },
+  buttonText: { color: colors.textOnImage, fontWeight: "600" },
   overlay: {
     ...absoluteFillObject,
     justifyContent: "center",

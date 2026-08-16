@@ -1,5 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useTranslation } from "../i18n/LanguageContext";
+import { colors } from "../theme/colors";
 
 export default function LanguageSwitch() {
   const { language, toggleLanguage } = useTranslation();
@@ -17,7 +18,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 8,
     borderRadius: 6,
-    backgroundColor: "#f0ece2",
+    backgroundColor: colors.primaryLight,
   },
-  text: { fontSize: 13, fontWeight: "600", color: "#8B5E3C" },
+  text: { fontSize: 13, fontWeight: "600", color: colors.primary },
 });
