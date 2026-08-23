@@ -11,6 +11,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  View,
 } from "react-native";
 import { deleteEntry, getEntryForDate, saveEntry } from "../database/db";
 import { useTranslation } from "../i18n/LanguageContext";
@@ -24,12 +25,14 @@ export default function DayDetailScreen({ route, navigation }: Props) {
   const { t } = useTranslation();
   const [entry, setEntry] = useState<BookEntry | null>(null);
   const [notes, setNotes] = useState("");
+  const [imageLoadFailed, setImageLoadFiled] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       const found = getEntryForDate(date);
       setEntry(found);
       setNotes(found?.notes ?? "");
+      setImageLoadFiled(false);
     }, [date]),
   );
 
@@ -65,12 +68,20 @@ export default function DayDetailScreen({ route, navigation }: Props) {
 
         {entry ? (
           <>
-            {imageUri && (
+            {imageUri && !imageLoadFailed && (
               <Image
                 source={{ uri: imageUri }}
                 style={styles.cover}
                 resizeMode="cover"
+                onError={() => setImageLoadFiled(true)}
               />
+            )}
+            {imageUri && imageLoadFailed && (
+              <View style={[styles.cover, styles.imageErrorPlaceholder]}>
+                <Text style={styles.imageErrorText}>
+                  {t("offlineOldCover")}
+                </Text>
+              </View>
             )}
             <Text style={styles.title}>{entry.title || t("untitled")}</Text>
             <Text style={styles.author}>
@@ -177,6 +188,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.primary,
     marginBottom: 10,
+  },
+  imageErrorPlaceholder: {
+    backgroundColor: colors.cellBackground,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 12,
+  },
+  imageErrorText: {
+    fontSize: 13,
+    color: colors.textMuted,
+    textAlign: "center",
   },
   secondaryButtonText: { color: colors.primary, fontWeight: "600" },
   deleteButton: { paddingVertical: 10 },

@@ -68,3 +68,28 @@ export function saveEntry(entry: Partial<BookEntry> & { date: string }): void {
 export function deleteEntry(date: string): void {
   db.runSync("DELETE FROM entries WHERE date = ?;", [date]);
 }
+
+export function getCachedEntriesOlderThan(cutoffDate: string): BookEntry[] {
+  return db.getAllSync<BookEntry>(
+    `SELECT * FROM entries
+     WHERE date < ?
+       AND coverUrl IS NOT NULL
+       AND localImageUri IS NOT NULL;`,
+    [cutoffDate],
+  );
+}
+
+export function clearLocalImagePath(date: string): void {
+  db.runAsync("UPDATE entries SET localImageUri = NULL WHERE date = ?;", [
+    date,
+  ]);
+}
+
+export function getLocalImageUrisNewerThan(cutoffDate: string): string[] {
+  const rows = db.getAllSync<{ localImageUri: string }>(
+    `SELECT DISTINCT localImageUri FROM entries
+     WHERE date >= ? AND localImageUri IS NOT NULL;`,
+    [cutoffDate],
+  );
+  return rows.map((r) => r.localImageUri);
+}

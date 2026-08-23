@@ -4,13 +4,18 @@ import { ActivityIndicator, View } from "react-native";
 import { initDatabase } from "./src/database/db";
 import { LanguageProvider } from "./src/i18n/LanguageContext";
 import AppNavigator from "./src/navigation/AppNavigator";
+import { cleanupOldCoverCache } from "./src/services/coverCleanup";
 
 export default function App() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    initDatabase();
-    setReady(true);
+    async function setup() {
+      initDatabase();
+      await cleanupOldCoverCache();
+      setReady(true);
+    }
+    setup();
   }, []);
 
   if (!ready) {

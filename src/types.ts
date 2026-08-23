@@ -24,3 +24,9 @@ export type RootStackParamList = {
   DayDetail: { date: string };
   ScanBook: { date: string };
 };
+
+// Lista stanów przy wyszukiwaniu książki
+export type BookFetchResult =
+  | { status: "found"; book: BookApiResult }
+  | { status: "not_found" }
+  | { status: "network_error" };

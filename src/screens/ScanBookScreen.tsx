@@ -17,6 +17,7 @@ import {
 import { saveEntry } from "../database/db";
 import { useTranslation } from "../i18n/LanguageContext";
 import { fetchBookByISBN } from "../services/booksApi";
+import { cacheCoverImage } from "../services/imageCache";
 import { colors } from "../theme/colors";
 import { RootStackParamList } from "../types";
 
@@ -46,14 +47,19 @@ export default function ScanBookScreen({ route, navigation }: Props) {
     setScanned(true);
     setLoading(true);
 
-    const book = await fetchBookByISBN(isbn);
+    const result = await fetchBookByISBN(isbn);
     setLoading(false);
 
-    if (book) {
-      saveEntry({ date, ...book });
+    if (result.status === "found") {
+      const localCoverUri = result.book.coverUrl
+        ? await cacheCoverImage(result.book.coverUrl)
+        : null;
+
+      saveEntry({ date, ...result.book, localImageUri: localCoverUri });
+
       Alert.alert(
         t("foundTitle"),
-        `${book.title ?? t("untitled")} - ${book.author ?? t("unknownAuthor")}`,
+        `${result.book.title ?? t("untitled")} - ${result.book.author ?? t("unknownAuthor")}`,
         [
           {
             text: t("ok"),
@@ -64,6 +70,16 @@ export default function ScanBookScreen({ route, navigation }: Props) {
           },
         ],
       );
+    } else if (result.status === "network_error") {
+      Alert.alert(t("networkErrorTitle"), t("networkErrorMsg"), [
+        {
+          text: t("scanAgain"),
+          onPress: () => {
+            isProcessingRef.current = false;
+            setScanned(false);
+          },
+        },
+      ]);
     } else {
       Alert.alert(t("notFoundTitle"), t("notFoundMessage"), [
         {
