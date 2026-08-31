@@ -48,8 +48,8 @@ export const darkColors: ColorPalette = {
   textMuted: "#9C8873",
   textOnImage: "#fff",
 
-  background: "#1C1410",
-  cellBackground: "#2A2019",
+  background: "#271d17",
+  cellBackground: "#33271e",
 
   danger: "#E07A5F",
   textShadow: "rgba(0, 0, 0, 0.9)",
