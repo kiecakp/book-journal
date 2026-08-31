@@ -17,12 +17,16 @@ export interface BookApiResult {
   coverUrl: string | null;
 }
 
-// Lista ekranów i parametrów jakie przyjmują - dzięki temu
-// navigation.navigate('DayDetail', { date }) jest sprawdzane przez kompilator
-export type RootStackParamList = {
-  Calendar: undefined;
+export type CalendarStackParamList = {
+  CalendarMain: undefined;
   DayDetail: { date: string };
   ScanBook: { date: string };
+};
+
+export type RootTabParamList = {
+  Library: undefined;
+  CalendarTab: undefined;
+  Settings: undefined;
 };
 
 // Lista stanów przy wyszukiwaniu książki

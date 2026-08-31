@@ -1,6 +1,6 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   StyleSheet,
@@ -13,18 +13,21 @@ import DayCell from "../components/DayCell";
 import { getAllEntries } from "../database/db";
 import { useTranslation } from "../i18n/LanguageContext";
 import "../i18n/calendarLocale";
-import { colors } from "../theme/colors";
-import { BookEntry, RootStackParamList } from "../types";
+import { useTheme } from "../theme/ThemeContext";
+import { BookEntry, CalendarStackParamList } from "../types";
 
-type Props = NativeStackScreenProps<RootStackParamList, "Calendar">;
+type Props = NativeStackScreenProps<CalendarStackParamList, "CalendarMain">;
 
 const todayString = new Date().toISOString().split("T")[0];
 
 export default function CalendarScreen({ navigation }: Props) {
+  const { colors, resolvedScheme } = useTheme();
   const [entries, setEntries] = useState<Record<string, BookEntry>>({});
   const [visibleDate, setVisibleDate] = useState(todayString);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const { language, t } = useTranslation();
+
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   LocaleConfig.defaultLocale = language;
 
@@ -51,7 +54,7 @@ export default function CalendarScreen({ navigation }: Props) {
         </TouchableOpacity>
       ),
     });
-  }, [navigation, language]);
+  }, [navigation, language, styles]);
 
   useFocusEffect(
     useCallback(() => {
@@ -67,7 +70,7 @@ export default function CalendarScreen({ navigation }: Props) {
     <View style={styles.container}>
       <Animated.View style={{ opacity: fadeAnim, flex: 1 }}>
         <Calendar
-          key={`${language}-${visibleDate}`}
+          key={`${language}-${resolvedScheme}-${visibleDate}`}
           current={todayString}
           enableSwipeMonths={true}
           style={styles.calendar}
@@ -100,23 +103,25 @@ export default function CalendarScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  calendar: {
-    height: 380,
-  },
-  todayButton: {
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 15,
-    backgroundColor: colors.primaryLight,
-  },
-  todayButtonText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: colors.primary,
-  },
-});
+function createStyles(colors: ReturnType<typeof useTheme>["colors"]) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    calendar: {
+      height: 380,
+    },
+    todayButton: {
+      paddingVertical: 4,
+      paddingHorizontal: 12,
+      borderRadius: 15,
+      backgroundColor: colors.primaryLight,
+    },
+    todayButtonText: {
+      fontSize: 13,
+      fontWeight: "600",
+      color: colors.primary,
+    },
+  });
+}

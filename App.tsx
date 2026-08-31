@@ -1,10 +1,12 @@
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { initDatabase } from "./src/database/db";
 import { LanguageProvider } from "./src/i18n/LanguageContext";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { cleanupOldCoverCache } from "./src/services/coverCleanup";
+import { ThemeProvider } from "./src/theme/ThemeContext";
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -27,9 +29,13 @@ export default function App() {
   }
 
   return (
-    <LanguageProvider>
-      <StatusBar style="dark" />
-      <AppNavigator />
-    </LanguageProvider>
+    <ThemeProvider>
+      <SafeAreaProvider>
+        <LanguageProvider>
+          <StatusBar style="dark" />
+          <AppNavigator />
+        </LanguageProvider>
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }

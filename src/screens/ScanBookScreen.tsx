@@ -5,7 +5,7 @@ import {
   useCameraPermissions,
 } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -18,8 +18,8 @@ import { saveEntry } from "../database/db";
 import { useTranslation } from "../i18n/LanguageContext";
 import { fetchBookByISBN } from "../services/booksApi";
 import { cacheCoverImage } from "../services/imageCache";
-import { colors } from "../theme/colors";
-import { RootStackParamList } from "../types";
+import { useTheme } from "../theme/ThemeContext";
+import { CalendarStackParamList } from "../types";
 
 const absoluteFillObject = {
   position: "absolute" as const,
@@ -29,15 +29,18 @@ const absoluteFillObject = {
   bottom: 0,
 };
 
-type Props = NativeStackScreenProps<RootStackParamList, "ScanBook">;
+type Props = NativeStackScreenProps<CalendarStackParamList, "ScanBook">;
 
 export default function ScanBookScreen({ route, navigation }: Props) {
+  const { colors } = useTheme();
   const { date } = route.params;
   const { t } = useTranslation();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const isProcessingRef = useRef(false);
   const [loading, setLoading] = useState(false);
+
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const handleBarcodeScanned = async ({
     data: isbn,
@@ -196,62 +199,64 @@ export default function ScanBookScreen({ route, navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000" },
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 24,
-  },
-  infoText: { textAlign: "center", marginBottom: 16, fontSize: 15 },
-  button: {
-    backgroundColor: colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-  buttonText: { color: colors.textOnImage, fontWeight: "600" },
-  overlay: {
-    ...absoluteFillObject,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  scanFrame: {
-    width: 260,
-    height: 160,
-    borderWidth: 2,
-    borderColor: "#fff",
-    borderRadius: 12,
-  },
-  helperText: { color: "#fff", marginTop: 16, fontSize: 14 },
-  loadingOverlay: {
-    ...absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: { color: "#fff", marginTop: 12 },
-  bottomBar: {
-    position: "absolute",
-    bottom: 32,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingHorizontal: 16,
-  },
-  secondaryButton: {
-    backgroundColor: "rgba(255,255,255,0.15)",
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-  },
-  processingScreen: {
-    flex: 1,
-    backgroundColor: "#000",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  secondaryButtonText: { color: "#fff", fontSize: 13, fontWeight: "600" },
-});
+function createStyles(colors: ReturnType<typeof useTheme>["colors"]) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: "#000" },
+    center: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 24,
+    },
+    infoText: { textAlign: "center", marginBottom: 16, fontSize: 15 },
+    button: {
+      backgroundColor: colors.primary,
+      paddingVertical: 12,
+      paddingHorizontal: 20,
+      borderRadius: 8,
+    },
+    buttonText: { color: colors.textOnImage, fontWeight: "600" },
+    overlay: {
+      ...absoluteFillObject,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    scanFrame: {
+      width: 260,
+      height: 160,
+      borderWidth: 2,
+      borderColor: "#fff",
+      borderRadius: 12,
+    },
+    helperText: { color: "#fff", marginTop: 16, fontSize: 14 },
+    loadingOverlay: {
+      ...absoluteFillObject,
+      backgroundColor: "rgba(0,0,0,0.6)",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    loadingText: { color: "#fff", marginTop: 12 },
+    bottomBar: {
+      position: "absolute",
+      bottom: 32,
+      left: 0,
+      right: 0,
+      flexDirection: "row",
+      justifyContent: "space-around",
+      paddingHorizontal: 16,
+    },
+    secondaryButton: {
+      backgroundColor: "rgba(255,255,255,0.15)",
+      paddingVertical: 10,
+      paddingHorizontal: 14,
+      borderRadius: 8,
+    },
+    processingScreen: {
+      flex: 1,
+      backgroundColor: "#000",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    secondaryButtonText: { color: "#fff", fontSize: 13, fontWeight: "600" },
+  });
+}

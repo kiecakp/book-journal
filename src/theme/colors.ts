@@ -1,4 +1,19 @@
-export const colors = {
+export interface ColorPalette {
+  primary: string;
+  primaryLight: string;
+  textPrimary: string;
+  textSecondary: string;
+  textMuted: string;
+  textOnImage: string;
+  background: string;
+  cellBackground: string;
+  danger: string;
+  textShadow: string;
+  borderLight: string;
+}
+
+// tryb jasny
+export const lightColors: ColorPalette = {
   // kolory podstawowe / makra
   primary: "#8B5E3C", // brązowy - akcenty, przyciski, obramowania
   primaryLight: "#f0ece2", // jasny beż - tła nieaktywnych elementów, przyciski
@@ -22,3 +37,23 @@ export const colors = {
   // obramowania
   borderLight: "#ddd",
 } as const;
+
+// tryb ciemny
+export const darkColors: ColorPalette = {
+  primary: "#C89B6B",
+  primaryLight: "#3A2E24",
+
+  textPrimary: "#F0E6D8",
+  textSecondary: "#C9B8A6",
+  textMuted: "#9C8873",
+  textOnImage: "#fff",
+
+  background: "#1C1410",
+  cellBackground: "#2A2019",
+
+  danger: "#E07A5F",
+  textShadow: "rgba(0, 0, 0, 0.9)",
+  borderLight: "#4A3B2E",
+} as const;
+
+export type ThemeMode = "light" | "dark" | "auto";

@@ -1,6 +1,7 @@
+import { useMemo } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { DateData } from "react-native-calendars";
-import { colors } from "../theme/colors";
+import { useTheme } from "../theme/ThemeContext";
 import { BookEntry } from "../types";
 
 interface DayCellProps {
@@ -20,10 +21,12 @@ export default function DayCell({
   currentMonth,
   currentYear,
 }: DayCellProps) {
+  const { colors } = useTheme();
   const isOutsideMonth =
     date.month !== currentMonth || date.year !== currentYear;
   if (isOutsideMonth) return null;
 
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const imageUri = entry?.localImageUri || entry?.coverUrl;
 
   return (
@@ -50,50 +53,52 @@ export default function DayCell({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    width: 55,
-    height: 80,
-    padding: 2,
-  },
-
-  cell: {
-    flex: 1,
-    borderRadius: 8,
-    overflow: "hidden",
-    backgroundColor: colors.cellBackground,
-  },
-
-  todayBorder: {
-    borderWidth: 2,
-    borderColor: colors.primary,
-  },
-
-  cover: {
-    width: "100%",
-    height: "100%",
-  },
-
-  emptyCell: {
-    flex: 1,
-  },
-
-  dayNumber: {
-    position: "absolute",
-    top: 2,
-    left: 4,
-    fontSize: 16,
-    fontWeight: "600",
-    color: colors.textPrimary,
-  },
-
-  dayNumberOnImage: {
-    color: colors.textOnImage,
-    textShadowColor: colors.textShadow,
-    textShadowOffset: {
-      width: 1,
-      height: 1,
+function createStyles(colors: ReturnType<typeof useTheme>["colors"]) {
+  return StyleSheet.create({
+    container: {
+      width: 55,
+      height: 80,
+      padding: 2,
     },
-    textShadowRadius: 3,
-  },
-});
+
+    cell: {
+      flex: 1,
+      borderRadius: 8,
+      overflow: "hidden",
+      backgroundColor: colors.cellBackground,
+    },
+
+    todayBorder: {
+      borderWidth: 2,
+      borderColor: colors.primary,
+    },
+
+    cover: {
+      width: "100%",
+      height: "100%",
+    },
+
+    emptyCell: {
+      flex: 1,
+    },
+
+    dayNumber: {
+      position: "absolute",
+      top: 2,
+      left: 4,
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.textPrimary,
+    },
+
+    dayNumberOnImage: {
+      color: colors.textOnImage,
+      textShadowColor: colors.textShadow,
+      textShadowOffset: {
+        width: 1,
+        height: 1,
+      },
+      textShadowRadius: 3,
+    },
+  });
+}

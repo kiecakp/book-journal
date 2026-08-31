@@ -1,6 +1,6 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Alert,
   Image,
@@ -15,10 +15,10 @@ import {
 } from "react-native";
 import { deleteEntry, getEntryForDate, saveEntry } from "../database/db";
 import { useTranslation } from "../i18n/LanguageContext";
-import { colors } from "../theme/colors";
-import { BookEntry, RootStackParamList } from "../types";
+import { useTheme } from "../theme/ThemeContext";
+import { BookEntry, CalendarStackParamList } from "../types";
 
-type Props = NativeStackScreenProps<RootStackParamList, "DayDetail">;
+type Props = NativeStackScreenProps<CalendarStackParamList, "DayDetail">;
 
 export default function DayDetailScreen({ route, navigation }: Props) {
   const { date } = route.params;
@@ -26,6 +26,7 @@ export default function DayDetailScreen({ route, navigation }: Props) {
   const [entry, setEntry] = useState<BookEntry | null>(null);
   const [notes, setNotes] = useState("");
   const [imageLoadFailed, setImageLoadFiled] = useState(false);
+  const { colors } = useTheme();
 
   useFocusEffect(
     useCallback(() => {
@@ -36,6 +37,7 @@ export default function DayDetailScreen({ route, navigation }: Props) {
     }, [date]),
   );
 
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const imageUri = entry?.localImageUri || entry?.coverUrl;
 
   const handleSaveNotes = () => {
@@ -134,74 +136,76 @@ export default function DayDetailScreen({ route, navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  container: { padding: 20, alignItems: "center" },
-  dateHeader: { fontSize: 14, color: colors.textMuted, marginBottom: 12 },
-  cover: { width: 160, height: 220, borderRadius: 10, marginBottom: 16 },
-  title: {
-    fontSize: 20,
-    fontWeight: "700",
-    textAlign: "center",
-    color: colors.textPrimary,
-  },
-  author: {
-    fontSize: 15,
-    color: colors.textMuted,
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  label: {
-    alignSelf: "flex-start",
-    fontSize: 13,
-    fontWeight: "600",
-    color: colors.textSecondary,
-    marginTop: 8,
-    marginBottom: 6,
-  },
-  notesInput: {
-    width: "100%",
-    minHeight: 100,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    borderRadius: 8,
-    padding: 12,
-    textAlignVertical: "top",
-    marginBottom: 16,
-  },
-  saveButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    width: "100%",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  saveButtonText: { color: colors.textOnImage, fontWeight: "600" },
-  secondaryButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    width: "100%",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: colors.primary,
-    marginBottom: 10,
-  },
-  imageErrorPlaceholder: {
-    backgroundColor: colors.cellBackground,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 12,
-  },
-  imageErrorText: {
-    fontSize: 13,
-    color: colors.textMuted,
-    textAlign: "center",
-  },
-  secondaryButtonText: { color: colors.primary, fontWeight: "600" },
-  deleteButton: { paddingVertical: 10 },
-  deleteButtonText: { color: colors.danger, fontWeight: "600" },
-  emptyText: { fontSize: 15, color: colors.textMuted, marginBottom: 20 },
-});
+function createStyles(colors: ReturnType<typeof useTheme>["colors"]) {
+  return StyleSheet.create({
+    flex: { flex: 1 },
+    container: { padding: 20, alignItems: "center" },
+    dateHeader: { fontSize: 14, color: colors.textMuted, marginBottom: 12 },
+    cover: { width: 160, height: 220, borderRadius: 10, marginBottom: 16 },
+    title: {
+      fontSize: 20,
+      fontWeight: "700",
+      textAlign: "center",
+      color: colors.textPrimary,
+    },
+    author: {
+      fontSize: 15,
+      color: colors.textMuted,
+      marginBottom: 16,
+      textAlign: "center",
+    },
+    label: {
+      alignSelf: "flex-start",
+      fontSize: 13,
+      fontWeight: "600",
+      color: colors.textSecondary,
+      marginTop: 8,
+      marginBottom: 6,
+    },
+    notesInput: {
+      width: "100%",
+      minHeight: 100,
+      borderWidth: 1,
+      borderColor: colors.borderLight,
+      borderRadius: 8,
+      padding: 12,
+      textAlignVertical: "top",
+      marginBottom: 16,
+    },
+    saveButton: {
+      backgroundColor: colors.primary,
+      paddingVertical: 12,
+      paddingHorizontal: 24,
+      borderRadius: 8,
+      width: "100%",
+      alignItems: "center",
+      marginBottom: 10,
+    },
+    saveButtonText: { color: colors.textOnImage, fontWeight: "600" },
+    secondaryButton: {
+      paddingVertical: 12,
+      paddingHorizontal: 24,
+      borderRadius: 8,
+      width: "100%",
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: colors.primary,
+      marginBottom: 10,
+    },
+    imageErrorPlaceholder: {
+      backgroundColor: colors.cellBackground,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 12,
+    },
+    imageErrorText: {
+      fontSize: 13,
+      color: colors.textMuted,
+      textAlign: "center",
+    },
+    secondaryButtonText: { color: colors.primary, fontWeight: "600" },
+    deleteButton: { paddingVertical: 10 },
+    deleteButtonText: { color: colors.danger, fontWeight: "600" },
+    emptyText: { fontSize: 15, color: colors.textMuted, marginBottom: 20 },
+  });
+}

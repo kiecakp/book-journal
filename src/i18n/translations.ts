@@ -42,6 +42,18 @@ export const translations = {
     networkErrorTitle: "Brak połączenia",
     networkErrorMsg:
       "Nie udało się połączyć z internetem. Sprawdź swoje połączenie i spróbuj ponownie.",
+    settingsTitle: "Ustawienia",
+    settingsAppearance: "Wygląd",
+    languageLabel: "Język",
+    themeLabel: "Motyw",
+    themeLight: "Jasny",
+    themeDark: "Ciemny",
+    themeAuto: "Systemowy",
+    languagePolish: "Polski",
+    languageEnglish: "Angielski",
+    tabLibrary: "Biblioteczka",
+    tabCalendar: "Kalendarz",
+    tabSettings: "Ustawienia",
   },
 
   en: {
@@ -86,6 +98,18 @@ export const translations = {
     networkErrorTitle: "No connection",
     networkErrorMsg:
       "Couldn't connect to the internet. Check your connection and try again.",
+    settingsTitle: "Settings",
+    settingsAppearance: "Appearance",
+    languageLabel: "Language",
+    themeLabel: "Theme",
+    themeLight: "Light",
+    themeDark: "Dark",
+    themeAuto: "System",
+    languagePolish: "Polish",
+    languageEnglish: "English",
+    tabLibrary: "Library",
+    tabCalendar: "Calendar",
+    tabSettings: "Settings",
   },
 } as const;
 

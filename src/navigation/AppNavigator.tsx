@@ -1,49 +1,59 @@
+import { Ionicons } from "@expo/vector-icons";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import LanguageSwitch from "../components/LanguageSwitch";
 import { useTranslation } from "../i18n/LanguageContext";
-import CalendarScreen from "../screens/CalendarScreen";
-import DayDetailScreen from "../screens/DayDetailScreen";
-import ScanBookScreen from "../screens/ScanBookScreen";
-import { colors } from "../theme/colors";
-import { RootStackParamList } from "../types";
+import LibraryScreen from "../screens/LibraryScreen";
+import SettingsScreen from "../screens/SettingsScreen";
+import { useTheme } from "../theme/ThemeContext";
+import { RootTabParamList } from "../types";
+import CalendarStackNavigator from "./CalendarStackNavigator";
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<RootTabParamList>();
+
+const tabIcons: Record<keyof RootTabParamList, keyof typeof Ionicons.glyphMap> =
+  {
+    Library: "library-outline",
+    CalendarTab: "calendar-outline",
+    Settings: "settings-outline",
+  };
 
 export default function AppNavigator() {
+  const { colors } = useTheme();
   const { t } = useTranslation();
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.textPrimary,
-          headerTitleStyle: { fontWeight: "700" },
-        }}
+      <Tab.Navigator
+        initialRouteName="CalendarTab"
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.textMuted,
+          tabBarStyle: {
+            backgroundColor: colors.background,
+            borderTopColor: colors.borderLight,
+          },
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name={tabIcons[route.name]} size={size} color={color} />
+          ),
+        })}
       >
-        <Stack.Screen
-          name="Calendar"
-          component={CalendarScreen}
-          options={{ title: t("appTitle") }}
+        <Tab.Screen
+          name="Library"
+          component={LibraryScreen}
+          options={{ title: t("tabLibrary") }}
         />
-        <Stack.Screen
-          name="DayDetail"
-          component={DayDetailScreen}
-          options={{
-            title: t("dayDetailTitle"),
-            headerRight: () => <LanguageSwitch />,
-          }}
+        <Tab.Screen
+          name="CalendarTab"
+          component={CalendarStackNavigator}
+          options={{ title: t("tabCalendar") }}
         />
-        <Stack.Screen
-          name="ScanBook"
-          component={ScanBookScreen}
-          options={{
-            title: t("scanTitle"),
-            headerRight: () => <LanguageSwitch />,
-          }}
+        <Tab.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={{ title: t("tabSettings") }}
         />
-      </Stack.Navigator>
+      </Tab.Navigator>
     </NavigationContainer>
   );
 }
