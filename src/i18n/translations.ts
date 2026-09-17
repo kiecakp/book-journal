@@ -2,10 +2,12 @@ export const translations = {
   pl: {
     appTitle: "Kalendarz książkowy",
     dayDetailTitle: "Szczegóły dnia",
+    bookDetailTitle: "Książka",
     scanTitle: "Zeskanuj książkę",
-    noEntry: "Brak wpisu dla tego dnia.",
+    noEntry: "Brak książek dodanych tego dnia.",
     addBook: "Dodaj książkę",
     changeBook: "Zmień książkę",
+    changeCover: "Zmień okładkę",
     deleteEntry: "Usuń wpis",
     deleteEntryConfirmTitle: "Usuń wpis",
     deleteEntryConfirmMessage: "Na pewno chcesz usunąć wpis dla tego dnia?",
@@ -59,10 +61,12 @@ export const translations = {
   en: {
     appTitle: "Book Calendar",
     dayDetailTitle: "Day Details",
+    bookDetailTitle: "Book",
     scanTitle: "Scan a Book",
-    noEntry: "No entry for this day yet.",
+    noEntry: "No books added for this day.",
     addBook: "Add a book",
     changeBook: "Change book",
+    changeCover: "Change cover",
     deleteEntry: "Delete entry",
     deleteEntryConfirmTitle: "Delete entry",
     deleteEntryConfirmMessage:

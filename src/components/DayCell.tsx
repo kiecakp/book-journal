@@ -6,7 +6,7 @@ import { BookEntry } from "../types";
 
 interface DayCellProps {
   date: DateData;
-  entry: BookEntry | undefined;
+  entries: BookEntry[];
   onPress: (dateString: string) => void;
   isToday: boolean;
   currentMonth: number;
@@ -15,7 +15,7 @@ interface DayCellProps {
 
 export default function DayCell({
   date,
-  entry,
+  entries,
   onPress,
   isToday,
   currentMonth,
@@ -31,6 +31,8 @@ export default function DayCell({
   const styles = useMemo(() => createStyles(colors), [colors]);
   if (isOutsideMonth) return null;
 
+  const entry = entries[0];
+  const extraCount = entries.length - 1;
   const preferLocal = !triedRemoteFallback && !!entry?.localImageUri;
   const imageUri = preferLocal ? entry?.localImageUri : entry?.coverUrl;
 
@@ -57,6 +59,12 @@ export default function DayCell({
           />
         ) : (
           <View style={styles.emptyCell} />
+        )}
+
+        {extraCount > 0 && (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>+{extraCount}</Text>
+          </View>
         )}
 
         <Text style={[styles.dayNumber, imageUri && styles.dayNumberOnImage]}>
@@ -113,6 +121,23 @@ function createStyles(colors: ReturnType<typeof useTheme>["colors"]) {
         height: 1,
       },
       textShadowRadius: 3,
+    },
+
+    badge: {
+      position: "absolute",
+      bottom: 2,
+      right: 2,
+      backgroundColor: colors.primary,
+      borderRadius: 8,
+      paddingHorizontal: 5,
+      paddingVertical: 1,
+      minWidth: 16,
+      alignItems: "center",
+    },
+    badgeText: {
+      fontSize: 10,
+      fontWeight: "700",
+      color: colors.textOnImage,
     },
   });
 }

@@ -33,7 +33,7 @@ type Props = NativeStackScreenProps<CalendarStackParamList, "ScanBook">;
 
 export default function ScanBookScreen({ route, navigation }: Props) {
   const { colors } = useTheme();
-  const { date } = route.params;
+  const { date, id } = route.params;
   const { t } = useTranslation();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
@@ -58,7 +58,12 @@ export default function ScanBookScreen({ route, navigation }: Props) {
         ? await cacheCoverImage(result.book.coverUrl)
         : null;
 
-      saveEntry({ date, ...result.book, localImageUri: localCoverUri });
+      const savedId = saveEntry({
+        id,
+        date,
+        ...result.book,
+        localImageUri: localCoverUri,
+      });
 
       Alert.alert(
         t("foundTitle"),
@@ -68,7 +73,7 @@ export default function ScanBookScreen({ route, navigation }: Props) {
             text: t("ok"),
             onPress: () => {
               isProcessingRef.current = false;
-              navigation.navigate("DayDetail", { date });
+              navigation.replace("BookDetail", { id: savedId, date });
             },
           },
         ],
@@ -112,12 +117,13 @@ export default function ScanBookScreen({ route, navigation }: Props) {
 
     if (!result.canceled) {
       const persistedUri = await persistLocalPhoto(result.assets[0].uri);
-      saveEntry({
+      const savedId = saveEntry({
+        id,
         date,
         isbn,
         localImageUri: persistedUri ?? result.assets[0].uri,
       });
-      navigation.navigate("DayDetail", { date });
+      navigation.replace("BookDetail", { id: savedId, date });
     }
   };
 
@@ -136,8 +142,12 @@ export default function ScanBookScreen({ route, navigation }: Props) {
 
     if (!result.canceled) {
       const persistedUri = await persistLocalPhoto(result.assets[0].uri);
-      saveEntry({ date, localImageUri: persistedUri ?? result.assets[0].uri });
-      navigation.navigate("DayDetail", { date });
+      const savedId = saveEntry({
+        id,
+        date,
+        localImageUri: persistedUri ?? result.assets[0].uri,
+      });
+      navigation.replace("BookDetail", { id: savedId, date });
     }
   };
 

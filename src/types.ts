@@ -1,4 +1,5 @@
 export interface BookEntry {
+  id: number;
   date: string;
   isbn: string | null;
   title: string | null;
@@ -20,7 +21,8 @@ export interface BookApiResult {
 export type CalendarStackParamList = {
   CalendarMain: undefined;
   DayDetail: { date: string };
-  ScanBook: { date: string };
+  BookDetail: { id: number; date: string };
+  ScanBook: { date: string; id?: number };
 };
 
 export type RootTabParamList = {

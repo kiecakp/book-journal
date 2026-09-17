@@ -2,20 +2,15 @@ import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useMemo, useState } from "react";
 import {
-  Alert,
+  FlatList,
   Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import { deleteEntry, getEntryForDate, saveEntry } from "../database/db";
+import { getEntriesForDate } from "../database/db";
 import { useTranslation } from "../i18n/LanguageContext";
-import { cacheCoverImage } from "../services/imageCache";
 import { useTheme } from "../theme/ThemeContext";
 import { BookEntry, CalendarStackParamList } from "../types";
 
@@ -24,216 +19,108 @@ type Props = NativeStackScreenProps<CalendarStackParamList, "DayDetail">;
 export default function DayDetailScreen({ route, navigation }: Props) {
   const { date } = route.params;
   const { t } = useTranslation();
-  const [entry, setEntry] = useState<BookEntry | null>(null);
-  const [notes, setNotes] = useState("");
-  const [imageSource, setImageSource] = useState<"local" | "remote" | "failed">(
-    "local",
-  );
+  const [books, setBooks] = useState<BookEntry[]>([]);
   const { colors } = useTheme();
-
-  useFocusEffect(
-    useCallback(() => {
-      const found = getEntryForDate(date);
-      setEntry(found);
-      setNotes(found?.notes ?? "");
-      setImageSource("local");
-    }, [date]),
-  );
 
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  const imageUri =
-    imageSource === "remote"
-      ? entry?.coverUrl
-      : entry?.localImageUri || entry?.coverUrl;
+  useFocusEffect(
+    useCallback(() => {
+      setBooks(getEntriesForDate(date));
+    }, [date]),
+  );
 
-  const handleImageError = () => {
-    if (imageSource === "local" && entry?.localImageUri && entry?.coverUrl) {
-      setImageSource("remote");
-    } else {
-      setImageSource("failed");
-    }
+  const handleAddBook = () => {
+    navigation.navigate("ScanBook", { date });
   };
 
-  const handleRemoteImageLoaded = async () => {
-    if (!entry?.coverUrl) return;
-    const localUri = await cacheCoverImage(entry.coverUrl);
-    if (localUri && localUri !== entry.localImageUri) {
-      const updated = { ...entry, localImageUri: localUri };
-      saveEntry(updated);
-      setEntry(updated);
-    }
-  };
-
-  const handleSaveNotes = () => {
-    if (!entry) return;
-    saveEntry({ ...entry, notes });
-    Alert.alert(t("savedTitle"), t("savedMessage"));
-  };
-
-  const handleDelete = () => {
-    Alert.alert(t("deleteEntryConfirmTitle"), t("deleteEntryConfirmMessage"), [
-      { text: t("cancel"), style: "cancel" },
-      {
-        text: t("delete"),
-        style: "destructive",
-        onPress: () => {
-          deleteEntry(date);
-          navigation.goBack();
-        },
-      },
-    ]);
+  const renderBook = ({ item }: { item: BookEntry }) => {
+    const imageUri = item.localImageUri || item.coverUrl;
+    return (
+      <TouchableOpacity
+        style={styles.row}
+        onPress={() => navigation.navigate("BookDetail", { id: item.id, date })}
+      >
+        {imageUri ? (
+          <Image source={{ uri: imageUri }} style={styles.rowCover} />
+        ) : (
+          <View style={[styles.rowCover, styles.rowCoverPlaceholder]} />
+        )}
+        <View style={styles.rowText}>
+          <Text style={styles.rowTitle} numberOfLines={2}>
+            {item.title || t("untitled")}
+          </Text>
+          <Text style={styles.rowAuthor} numberOfLines={1}>
+            {item.author || t("unknownAuthor")}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.dateHeader}>{date}</Text>
+    <View style={styles.container}>
+      <Text style={styles.dateHeader}>{date}</Text>
 
-        {entry ? (
-          <>
-            {imageUri && imageSource !== "failed" && (
-              <Image
-                source={{ uri: imageUri }}
-                style={styles.cover}
-                resizeMode="cover"
-                onError={handleImageError}
-                onLoad={
-                  imageSource === "remote" ? handleRemoteImageLoaded : undefined
-                }
-              />
-            )}
-            {imageUri && imageSource === "failed" && (
-              <View style={[styles.cover, styles.imageErrorPlaceholder]}>
-                <Text style={styles.imageErrorText}>
-                  {t("coverUnavailable")}
-                </Text>
-              </View>
-            )}
-            <Text style={styles.title}>{entry.title || t("untitled")}</Text>
-            <Text style={styles.author}>
-              {entry.author || t("unknownAuthor")}
-            </Text>
+      <FlatList
+        data={books}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={renderBook}
+        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>{t("noEntry")}</Text>
+        }
+      />
 
-            <Text style={styles.label}>{t("notesLabel")}</Text>
-            <TextInput
-              style={styles.notesInput}
-              multiline
-              placeholder={t("notesPlaceholder")}
-              value={notes}
-              onChangeText={setNotes}
-            />
-
-            <TouchableOpacity
-              style={styles.saveButton}
-              onPress={handleSaveNotes}
-            >
-              <Text style={styles.saveButtonText}>{t("saveNotes")}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={() => navigation.navigate("ScanBook", { date })}
-            >
-              <Text style={styles.secondaryButtonText}>{t("changeBook")}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={handleDelete}
-            >
-              <Text style={styles.deleteButtonText}>{t("deleteEntry")}</Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <>
-            <Text style={styles.emptyText}>{t("noEntry")}</Text>
-            <TouchableOpacity
-              style={styles.saveButton}
-              onPress={() => navigation.navigate("ScanBook", { date })}
-            >
-              <Text style={styles.saveButtonText}>{t("addBook")}</Text>
-            </TouchableOpacity>
-          </>
-        )}
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <TouchableOpacity style={styles.addButton} onPress={handleAddBook}>
+        <Text style={styles.addButtonText}>{t("addBook")}</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 function createStyles(colors: ReturnType<typeof useTheme>["colors"]) {
   return StyleSheet.create({
-    flex: { flex: 1 },
-    container: { padding: 20, alignItems: "center" },
-    dateHeader: { fontSize: 14, color: colors.textMuted, marginBottom: 12 },
-    cover: { width: 160, height: 220, borderRadius: 10, marginBottom: 16 },
-    title: {
-      fontSize: 20,
-      fontWeight: "700",
-      textAlign: "center",
-      color: colors.textPrimary,
-    },
-    author: {
-      fontSize: 15,
+    container: { flex: 1, backgroundColor: colors.background, padding: 20 },
+    dateHeader: {
+      fontSize: 14,
       color: colors.textMuted,
-      marginBottom: 16,
+      marginBottom: 12,
       textAlign: "center",
     },
-    label: {
-      alignSelf: "flex-start",
-      fontSize: 13,
-      fontWeight: "600",
-      color: colors.textSecondary,
-      marginTop: 8,
-      marginBottom: 6,
-    },
-    notesInput: {
-      width: "100%",
-      minHeight: 100,
+    listContent: { flexGrow: 1, paddingBottom: 12 },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.cellBackground,
+      borderRadius: 12,
       borderWidth: 1,
       borderColor: colors.borderLight,
-      borderRadius: 8,
-      padding: 12,
-      textAlignVertical: "top",
-      marginBottom: 16,
-    },
-    saveButton: {
-      backgroundColor: colors.primary,
-      paddingVertical: 12,
-      paddingHorizontal: 24,
-      borderRadius: 8,
-      width: "100%",
-      alignItems: "center",
+      padding: 10,
       marginBottom: 10,
     },
-    saveButtonText: { color: colors.textOnImage, fontWeight: "600" },
-    secondaryButton: {
-      paddingVertical: 12,
-      paddingHorizontal: 24,
-      borderRadius: 8,
-      width: "100%",
-      alignItems: "center",
-      borderWidth: 1,
-      borderColor: colors.primary,
-      marginBottom: 10,
+    rowCover: { width: 52, height: 72, borderRadius: 6, marginRight: 12 },
+    rowCoverPlaceholder: { backgroundColor: colors.borderLight },
+    rowText: { flex: 1 },
+    rowTitle: {
+      fontSize: 15,
+      fontWeight: "700",
+      color: colors.textPrimary,
+      marginBottom: 4,
     },
-    imageErrorPlaceholder: {
-      backgroundColor: colors.cellBackground,
-      justifyContent: "center",
-      alignItems: "center",
-      padding: 12,
-    },
-    imageErrorText: {
-      fontSize: 13,
+    rowAuthor: { fontSize: 13, color: colors.textMuted },
+    emptyText: {
+      fontSize: 15,
       color: colors.textMuted,
       textAlign: "center",
+      marginTop: 40,
     },
-    secondaryButtonText: { color: colors.primary, fontWeight: "600" },
-    deleteButton: { paddingVertical: 10 },
-    deleteButtonText: { color: colors.danger, fontWeight: "600" },
-    emptyText: { fontSize: 15, color: colors.textMuted, marginBottom: 20 },
+    addButton: {
+      backgroundColor: colors.primary,
+      paddingVertical: 14,
+      borderRadius: 10,
+      alignItems: "center",
+    },
+    addButtonText: { color: colors.textOnImage, fontWeight: "700" },
   });
 }

@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useTranslation } from "../i18n/LanguageContext";
+import BookDetailScreen from "../screens/BookDetailScreen";
 import CalendarScreen from "../screens/CalendarScreen";
 import DayDetailScreen from "../screens/DayDetailScreen";
 import ScanBookScreen from "../screens/ScanBookScreen";
@@ -18,6 +19,8 @@ export default function CalendarStackNavigator() {
         headerStyle: { backgroundColor: colors.background },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: { fontWeight: "700" },
+        headerTitleAlign: "center",
+        headerBackButtonDisplayMode: "minimal",
       }}
     >
       <Stack.Screen
@@ -37,6 +40,13 @@ export default function CalendarStackNavigator() {
         component={ScanBookScreen}
         options={{
           title: t("scanTitle"),
+        }}
+      />
+      <Stack.Screen
+        name="BookDetail"
+        component={BookDetailScreen}
+        options={{
+          title: t("bookDetailTitle"),
         }}
       />
     </Stack.Navigator>

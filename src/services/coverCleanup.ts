@@ -28,7 +28,7 @@ export async function cleanupOldCoverCache(): Promise<void> {
       await deleteLocalCover(entry.localImageUri);
       deletedCount++;
     }
-    clearLocalImagePath(entry.date);
+    clearLocalImagePath(entry.id);
   }
 
   if (deletedCount > 0) {

@@ -22,7 +22,7 @@ const todayString = new Date().toISOString().split("T")[0];
 
 export default function CalendarScreen({ navigation }: Props) {
   const { colors, resolvedScheme } = useTheme();
-  const [entries, setEntries] = useState<Record<string, BookEntry>>({});
+  const [entries, setEntries] = useState<Record<string, BookEntry[]>>({});
   const [visibleDate, setVisibleDate] = useState(todayString);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const { language, t } = useTranslation();
@@ -80,7 +80,7 @@ export default function CalendarScreen({ navigation }: Props) {
             date ? (
               <DayCell
                 date={date}
-                entry={entries[date.dateString]}
+                entries={entries[date.dateString] ?? []}
                 onPress={handleDayPress}
                 isToday={date.dateString === todayString}
                 currentMonth={date.month}
