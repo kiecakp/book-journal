@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { deleteEntry, getEntryForDate, saveEntry } from "../database/db";
 import { useTranslation } from "../i18n/LanguageContext";
+import { cacheCoverImage } from "../services/imageCache";
 import { useTheme } from "../theme/ThemeContext";
 import { BookEntry, CalendarStackParamList } from "../types";
 
@@ -25,7 +26,9 @@ export default function DayDetailScreen({ route, navigation }: Props) {
   const { t } = useTranslation();
   const [entry, setEntry] = useState<BookEntry | null>(null);
   const [notes, setNotes] = useState("");
-  const [imageLoadFailed, setImageLoadFiled] = useState(false);
+  const [imageSource, setImageSource] = useState<"local" | "remote" | "failed">(
+    "local",
+  );
   const { colors } = useTheme();
 
   useFocusEffect(
@@ -33,12 +36,34 @@ export default function DayDetailScreen({ route, navigation }: Props) {
       const found = getEntryForDate(date);
       setEntry(found);
       setNotes(found?.notes ?? "");
-      setImageLoadFiled(false);
+      setImageSource("local");
     }, [date]),
   );
 
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const imageUri = entry?.localImageUri || entry?.coverUrl;
+
+  const imageUri =
+    imageSource === "remote"
+      ? entry?.coverUrl
+      : entry?.localImageUri || entry?.coverUrl;
+
+  const handleImageError = () => {
+    if (imageSource === "local" && entry?.localImageUri && entry?.coverUrl) {
+      setImageSource("remote");
+    } else {
+      setImageSource("failed");
+    }
+  };
+
+  const handleRemoteImageLoaded = async () => {
+    if (!entry?.coverUrl) return;
+    const localUri = await cacheCoverImage(entry.coverUrl);
+    if (localUri && localUri !== entry.localImageUri) {
+      const updated = { ...entry, localImageUri: localUri };
+      saveEntry(updated);
+      setEntry(updated);
+    }
+  };
 
   const handleSaveNotes = () => {
     if (!entry) return;
@@ -70,18 +95,21 @@ export default function DayDetailScreen({ route, navigation }: Props) {
 
         {entry ? (
           <>
-            {imageUri && !imageLoadFailed && (
+            {imageUri && imageSource !== "failed" && (
               <Image
                 source={{ uri: imageUri }}
                 style={styles.cover}
                 resizeMode="cover"
-                onError={() => setImageLoadFiled(true)}
+                onError={handleImageError}
+                onLoad={
+                  imageSource === "remote" ? handleRemoteImageLoaded : undefined
+                }
               />
             )}
-            {imageUri && imageLoadFailed && (
+            {imageUri && imageSource === "failed" && (
               <View style={[styles.cover, styles.imageErrorPlaceholder]}>
                 <Text style={styles.imageErrorText}>
-                  {t("offlineOldCover")}
+                  {t("coverUnavailable")}
                 </Text>
               </View>
             )}

@@ -46,6 +46,24 @@ export async function cacheCoverImage(
   }
 }
 
+export async function persistLocalPhoto(
+  sourceUri: string,
+): Promise<string | null> {
+  try {
+    await ensureDirExists();
+
+    const extension = sourceUri.split(".").pop()?.split("?")[0] || "jpg";
+    const fileName = `photo-${Date.now()}-${Math.floor(Math.random() * 1e6)}.${extension}`;
+    const localPath = `${COVERS_DIR}${fileName}`;
+
+    await FileSystem.copyAsync({ from: sourceUri, to: localPath });
+    return localPath;
+  } catch (error) {
+    console.error("Błąd zapisu własnego zdjęcia okładki:", error);
+    return null;
+  }
+}
+
 export async function deleteLocalCover(localUri: string): Promise<void> {
   try {
     await FileSystem.deleteAsync(localUri, { idempotent: true });

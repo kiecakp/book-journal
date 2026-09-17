@@ -37,8 +37,8 @@ export const translations = {
     allowAccess: "Zezwól na dostęp",
     unknownAuthor: "Nieznany autor",
     goToToday: "Dzisiaj",
-    offlineOldCover:
-      "Brak połączenia z internetem — nie można załadować starszej okładki.",
+    coverUnavailable:
+      "Nie udało się wczytać okładki — spróbuj ponownie, gdy będziesz mieć internet.",
     networkErrorTitle: "Brak połączenia",
     networkErrorMsg:
       "Nie udało się połączyć z internetem. Sprawdź swoje połączenie i spróbuj ponownie.",
@@ -94,7 +94,8 @@ export const translations = {
     allowAccess: "Allow access",
     unknownAuthor: "Unknown author",
     goToToday: "Today",
-    offlineOldCover: "No internet connection — can't load this older cover.",
+    coverUnavailable:
+      "Couldn't load the cover — try again once you're back online.",
     networkErrorTitle: "No connection",
     networkErrorMsg:
       "Couldn't connect to the internet. Check your connection and try again.",

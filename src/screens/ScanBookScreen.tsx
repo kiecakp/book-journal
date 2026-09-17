@@ -17,7 +17,7 @@ import {
 import { saveEntry } from "../database/db";
 import { useTranslation } from "../i18n/LanguageContext";
 import { fetchBookByISBN } from "../services/booksApi";
-import { cacheCoverImage } from "../services/imageCache";
+import { cacheCoverImage, persistLocalPhoto } from "../services/imageCache";
 import { useTheme } from "../theme/ThemeContext";
 import { CalendarStackParamList } from "../types";
 
@@ -111,7 +111,12 @@ export default function ScanBookScreen({ route, navigation }: Props) {
     });
 
     if (!result.canceled) {
-      saveEntry({ date, isbn, localImageUri: result.assets[0].uri });
+      const persistedUri = await persistLocalPhoto(result.assets[0].uri);
+      saveEntry({
+        date,
+        isbn,
+        localImageUri: persistedUri ?? result.assets[0].uri,
+      });
       navigation.navigate("DayDetail", { date });
     }
   };
@@ -130,7 +135,8 @@ export default function ScanBookScreen({ route, navigation }: Props) {
     });
 
     if (!result.canceled) {
-      saveEntry({ date, localImageUri: result.assets[0].uri });
+      const persistedUri = await persistLocalPhoto(result.assets[0].uri);
+      saveEntry({ date, localImageUri: persistedUri ?? result.assets[0].uri });
       navigation.navigate("DayDetail", { date });
     }
   };
@@ -159,7 +165,7 @@ export default function ScanBookScreen({ route, navigation }: Props) {
       {!scanned ? (
         <>
           <CameraView
-            style={StyleSheet.absoluteFillObject}
+            style={StyleSheet.absoluteFill}
             facing="back"
             barcodeScannerSettings={{ barcodeTypes: ["ean13", "ean8"] }}
             onBarcodeScanned={handleBarcodeScanned}

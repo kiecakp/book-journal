@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { DateData } from "react-native-calendars";
 import { useTheme } from "../theme/ThemeContext";
@@ -24,10 +24,23 @@ export default function DayCell({
   const { colors } = useTheme();
   const isOutsideMonth =
     date.month !== currentMonth || date.year !== currentYear;
-  if (isOutsideMonth) return null;
+
+  const [triedRemoteFallback, setTriedRemoteFallback] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
 
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const imageUri = entry?.localImageUri || entry?.coverUrl;
+  if (isOutsideMonth) return null;
+
+  const preferLocal = !triedRemoteFallback && !!entry?.localImageUri;
+  const imageUri = preferLocal ? entry?.localImageUri : entry?.coverUrl;
+
+  const handleImageError = () => {
+    if (preferLocal && entry?.coverUrl) {
+      setTriedRemoteFallback(true);
+    } else {
+      setImageFailed(true);
+    }
+  };
 
   return (
     <Pressable
@@ -35,11 +48,12 @@ export default function DayCell({
       onPress={() => onPress(date.dateString)}
     >
       <View style={[styles.cell, isToday && styles.todayBorder]}>
-        {imageUri ? (
+        {imageUri && !imageFailed ? (
           <Image
             source={{ uri: imageUri }}
             style={styles.cover}
             resizeMode="cover"
+            onError={handleImageError}
           />
         ) : (
           <View style={styles.emptyCell} />
